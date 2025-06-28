@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Styled To-Do List</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body style="background: #05fdd5;
+background: -webkit-linear-gradient(0deg, #05fdd5, #2a6476);
+background: linear-gradient(0deg, #05fdd5, #2a6476);"
+
+    class="min-h-screen flex items-center justify-center p-4"
+  >
+    <div
+      class="bg-linear-to-t from-teal-300 to-slate-800 backdrop-blur rounded-xl p-6 shadow hover:shadow-2xl transition"
+    >
+      <h1
+        class=" text-3xl font-bold text-center text-white mb-6  rounded-xl p-2 "
+      >
+        To-Do List
+      </h1>
+
+      
+      <div class="flex flex-col sm:flex-row gap-4 mb-6">
+        <input
+          type="text"
+          id="taskInput"
+          placeholder="Add a task"
+          class="flex-1 
+         bg-white/10
+          text-white 
+          border border-gray-300 
+          px-4 py-2 
+          rounded focus:outline-none 
+          focus:ring-2 focus:ring-blue-900 "
+        />
+        <input
+          type="datetime-local"
+          id="datetimeInput"
+          class="border border-gray-300 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/10 text-white"
+        />
+        <button
+          onclick="addTask()"
+          class="bg-white/10 text-white  px-4 py-2 rounded hover:bg-blue-700 transition border-white border-1"
+        >
+          Add Task
+        </button>
+      </div>
+
+      
+      <div class="overflow-x-auto">
+        <table class="min-w-full table-auto border border-gray-200 text-left">
+          <thead class="bg-gradient-to-b from-slate-800 to-teal-600 text-white">
+            <tr class="item-center justify-between">
+              <th class="px-4 py-2 text-center border-r border-gray-300" >Task</th>
+              <th class="px-4 py-2 text-center border-r border-gray-300">When To Do</th>
+              <th class="px-4 py-2 text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody
+            id="taskList"
+            class="text-center bg-gradient-to-b from-slate-800 to-teal-600 text-white divide-y divide-gray-700 "
+          ></tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      let tasks = [];
+
+      function addTask() {
+        const taskInput = document.getElementById("taskInput");
+        const datetimeInput = document.getElementById("datetimeInput");
+
+        const taskText = taskInput.value.trim();
+        const datetime = datetimeInput.value;
+
+        if (taskText !== "" && datetime !== "") {
+          tasks.push({ text: taskText, datetime: datetime });
+          displayTasks();
+          taskInput.value = "";
+          datetimeInput.value = "";
+        }
+      }
+
+      function formatDateTime(datetimeStr) {
+        const date = new Date(datetimeStr);
+        return date.toLocaleString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        });
+      }
+
+      function displayTasks() {
+        const taskList = document.getElementById("taskList");
+        taskList.innerHTML = "";
+
+        // Sort by datetime
+        tasks.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
+
+        tasks.forEach((task, index) => {
+          const row = document.createElement("tr");
+
+          const taskCell = document.createElement("td");
+          taskCell.className = "px-4 py-2";
+          taskCell.textContent = task.text;
+
+          const datetimeCell = document.createElement("td");
+          datetimeCell.className = "px-4 py-2";
+          datetimeCell.textContent = formatDateTime(task.datetime);
+
+          const actionCell = document.createElement("td");
+          actionCell.className = "px-4 py-2 space-x-2";
+
+          const deleteButton = document.createElement("button");
+          deleteButton.textContent = "Delete";
+          deleteButton.className =
+            "bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition";
+          deleteButton.onclick = function () {
+            tasks.splice(index, 1);
+            displayTasks();
+          };
+
+          const updateButton = document.createElement("button");
+          updateButton.textContent = "Update";
+          updateButton.className =
+            "bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition";
+          updateButton.onclick = function () {
+            const updatedTask = prompt("Enter updated task:", task.text);
+            const updatedDatetime = prompt(
+              "Enter new date and time (YYYY-MM-DDTHH:MM):",
+              task.datetime
+            );
+
+            if (updatedTask !== "" && updatedDatetime !== "") {
+              tasks[index].text = updatedTask.trim();
+              tasks[index].datetime = updatedDatetime;
+              displayTasks();
+            }
+          };
+
+          
+          actionCell.appendChild(updateButton);
+          actionCell.appendChild(deleteButton);
+
+          row.appendChild(taskCell);
+          row.appendChild(datetimeCell);
+          row.appendChild(actionCell);
+
+          taskList.appendChild(row);
+        });
+      }
+    </script>
+  </body>
+</html>
